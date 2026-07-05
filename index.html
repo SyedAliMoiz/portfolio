@@ -585,13 +585,85 @@
       #invert:hover { transform: none; }
     }
   </style>
+
+  <style id="atmos-css">
+  /* Chunk 1 — carousel atmosphere: the void stops being flat; warmth swells and
+     drains with the story's emotional arc (MID intensity, softened ambient glow).
+     Words-first: these are z-index 0/1 behind the stage (z2); text never dims. */
+  #atmos-glow,#atmos-cool,#atmos-grain{position:fixed;inset:0;pointer-events:none;}
+  #atmos-glow{z-index:0;background:radial-gradient(96% 90% at 50% 42%,rgba(235,184,112,0.34),rgba(216,170,98,0.12) 46%,transparent 80%);opacity:var(--glow,0.4);transition:opacity 1.3s ease;}
+  #atmos-cool{z-index:0;background:radial-gradient(122% 118% at 50% 36%,rgba(20,27,43,0) 26%,rgba(17,23,38,0.92) 100%);opacity:var(--cool,0);transition:opacity 1.3s ease;}
+  #atmos-grain{z-index:1;background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='170'%20height='170'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.8'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'/%3E%3C/svg%3E");background-size:170px 170px;mix-blend-mode:soft-light;opacity:0.055;}
+  body{--glow:0.4;--cool:0;}
+  body[data-mood="open"]   {--glow:0.72;--cool:0.02;}
+  body[data-mood="tense"]  {--glow:0.39;--cool:0.14;}
+  body[data-mood="closing"]{--glow:0.19;--cool:0.34;}
+  body[data-mood="dark"]   {--glow:0.04;--cool:0.52;}
+  body[data-mood="lift"]   {--glow:0.20;--cool:0.17;}
+  body[data-mood="warm"]   {--glow:0.64;--cool:0.06;}
+  body[data-mood="light"]  {--glow:0.78;--cool:0;}
+  /* Act 3 is its own world (it has its own warm light-composition): fade atmosphere out. */
+  body.reading #atmos-glow, body.reading #atmos-cool, body.reading #atmos-grain{opacity:0 !important;transition:opacity 0.6s ease;}
+  @media (prefers-reduced-motion: reduce){ #atmos-glow,#atmos-cool{transition:none;} }
+  </style>
+
+  <style id="kinetic-css">
+  /* Chunk 2 — kinetic type: only the word "smaller." shrinks (0.4s delay);
+     "started hiding" gently mutes (no movement). Legibility protected. */
+  .shrink-word{transition:font-size 0.9s cubic-bezier(0.4,0,0.2,1) 0.4s;}
+  .anim-recede{transition:opacity 0.95s ease 0.45s;}
+  .beat.in .anim-recede{opacity:0.62;}
+  @media (prefers-reduced-motion: reduce){
+    .anim-recede,.beat.in .anim-recede{opacity:1 !important;transition:none !important;}
+  }
+  </style>
+
+  <style id="candidates-css">
+  /* --- consolidated working effects (candidates + Ali adjustments) --- */
+  /* #3: "smaller." shrinks via TRANSFORM so the rest of the line never moves */
+  .shrink-word{display:inline-block;font-size:1em !important;transform-origin:left center;
+    transition:transform .8s cubic-bezier(.4,0,.2,1) .9s;}
+  .beat.in .shrink-word{font-size:1em !important;transform:scale(.78);}
+  /* #4: mute ONLY hiding / stories / poems (not the whole line) */
+  .mute-word{transition:opacity .95s ease .45s;}
+  .beat.in .mute-word{opacity:.42;}
+  /* period runs away (beat 1) */
+  .runaway{display:inline-block;}
+  .beat.in .runaway{animation:runaway 2.4s cubic-bezier(.5,.05,.4,1) .8s forwards;}
+  @keyframes runaway{0%{transform:translate(0,0);opacity:1;}
+    20%{transform:translate(.9em,-.10em);}32%{transform:translate(1.15em,0);}
+    52%{transform:translate(2.5em,-.10em);}64%{transform:translate(2.8em,0);opacity:.82;}
+    100%{transform:translate(6.5em,0);opacity:0;}}
+  /* "open" splits — only EN slides right, space before OP preserved (beat 3) */
+  .op-half{display:inline-block;}
+  .en-half{display:inline-block;transition:transform .85s cubic-bezier(.3,.7,.3,1) .5s;}
+  .beat.in .en-half{transform:translateX(.5em);}
+  /* beat 9 only ("warm" mood is unique to it): the ambient light MOVES to the word "light".
+     Center glow dims; a soft diffuse warm pool blooms at the word's position (~61% across,
+     first-line height). Crossfade = the light appears to travel to the word. Screen-robust (%). */
+  #atmos-focus{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;
+    background:radial-gradient(58% 52% at 61% 45%,rgba(236,186,114,0.36),rgba(216,170,98,0.11) 44%,transparent 74%);
+    transition:opacity 1.5s ease;}
+  body[data-mood="warm"]{--glow:0.22;}
+  body[data-mood="warm"] #atmos-focus{opacity:1;}
+  /* reveal fix: kill the scale so the text never reflows 3->2 lines (beat 12) */
+  .anim-reveal{transform:none !important;letter-spacing:normal !important;}
+  /* reveal font (Ali disliked the heavy bold): lighter, more refined weight — FIRST PASS */
+  .reveal{font-weight:460 !important;letter-spacing:-0.004em !important;}
+  @media (prefers-reduced-motion: reduce){
+    .beat.in .runaway{animation:none;} .runaway{opacity:1;}
+    .en-half,.beat.in .en-half{transform:none;transition:none;}
+    #atmos-focus{transition:none;}
+    .beat.in .shrink-word{transform:none;} .beat.in .mute-word{opacity:1;}
+  }
+  </style>
 </head>
 <body>
   <noscript>
     <div class="fallback">
       <p>Once upon a time, there was a mischievous 9-year-old boy who’d ring doorbells and run away. One day, running downhill in a pair of oversized sunglasses, he fell so hard he cut his head wide open. The doctors saved him, and he ran right out of the hospital, still fearless.</p>
       <p>But as his voice got deeper and his climb got steeper, the boy’s spirit got smaller. Now he was afraid of falling: of people laughing at him. So, to save himself, he started hiding. He hid the stories he wrote, and the poems he scribbled.</p>
-      <p>Then one day, the boy grew up and decided to change. If he couldn’t step into the light, he would carry others into it. He helped CEOs and founders reach 9 million people, across more than 10 industries. And somewhere in their voices, he found his own.</p>
+      <p>Then one day, the boy grew up and decided to change. If he couldn’t step into the light, he would carry others into it. He helped CEOs and founders reach 9 million people, across 10+ industries. And somewhere in their voices, he found his own.</p>
       <p>Hello. My name is Ali, and I’m the boy in the story. I grew up to be the person founders hire when they have something to say and can’t find the words. This page is the first time I’ve done it for myself.</p>
       <p>People never tell you the real reason they want something. It hides under the reason they give. My whole job is finding it, and saying it back so plainly that people feel understood.</p>
       <p>I wrote the opt-in page for a US finance publisher that converted at 40%, while most landing pages never crack 15%. Founders and companies have earned more than 15,000 from words I wrote. A therapist read what I’d written about her work, and cried, because it was a clearer version of her own voice.</p>
@@ -687,16 +759,16 @@
     (function () {
       var beats = [
         { t: 'line', x: 'Once upon a time, there was a mischievous 9-year-old boy.' },
-        { t: 'line', x: 'For fun, he’d ring doorbells and run away.' },
+        { t: 'line', x: 'For fun, he’d ring doorbells and run away❰.❱' },
         { t: 'line', x: 'One day, running downhill,\nwearing a pair of oversized sunglasses\n⟪he fell…⟫' },
         { t: 'line', x: 'The boy fell so hard,\nhe cut his head wide open.', anim: 'drop' },
         { t: 'line', x: 'Thankfully, the doctors saved him.\nBut he ran right out of the hospital.\nStill fearless.' },
-        { t: 'line', x: 'But as his voice got deeper,\nand his climb got steeper,\nthe boy’s spirit got ⟨smaller⟩.' },
+        { t: 'line', x: 'But as his voice got deeper,\nand his climb got steeper,\nthe boy’s spirit got ⟨smaller.⟩' },
         { t: 'line', x: 'Now, he was afraid of falling.\nHe was afraid of people laughing at him.', anim: 'hold' },
-        { t: 'line', x: 'So, to save himself, he started hiding…\nHe hid the stories he wrote,\nand the poems he scribbled.' },
+        { t: 'line', x: 'So, to save himself, he started ❪hiding❫…\nHe hid the ❪stories❫ he wrote,\nand the ❪poems❫ he scribbled.' },
         { t: 'line', x: 'Then, one day,\nthe boy grew up and decided to change.\n⟪He thought…⟫' },
         { t: 'line', x: 'If he couldn’t step into the light,\nhe would carry others into it.', anim: 'catch' },
-        { t: 'line', x: 'He helped CEOs and founders\nreach ⟦9 million people⟧,\nacross more than 10 industries.' },
+        { t: 'line', x: 'He helped CEOs and founders\nreach ⟦9 million people⟧,\nacross 10+ industries.' },
         { t: 'line', x: 'And somewhere in their voices,\nhe found his own.' },
         { t: 'reveal', x: 'Hello! My name is Ali, and I’m the boy in the story.', anim: 'reveal' }
       ];
@@ -761,7 +833,7 @@
         // signature animations, so the two never collide.
         var cls = 'beat-content ' + (beat.t === 'reveal' ? 'reveal' : 'line');
         if (beat.anim) cls += ' anim-' + beat.anim;
-        var html = esc(beat.x).replace(/\n/g, '<br>').replace(/\u27e6/g, '<span class="hl">').replace(/\u27e7/g, '</span>').replace(/\u27e8/g, '<span class="shrink-word">').replace(/\u27e9/g, '</span>').replace(/\u27ea/g, '<span class="emph">').replace(/\u27eb/g, '</span>');
+        var html = esc(beat.x).replace(/\n/g, '<br>').replace(/\u27e6/g, '<span class="hl">').replace(/\u27e7/g, '</span>').replace(/\u27e8/g, '<span class="shrink-word">').replace(/\u27e9/g, '</span>').replace(/\u27ea/g, '<span class="emph">').replace(/\u27eb/g, '</span>').replace(/\u2770/g,'<span class="runaway">').replace(/\u2771/g,'</span>').replace(/\u2772/g,'<span class="op-half">').replace(/\u2773/g,'</span>').replace(/\u2774/g,'<span class="en-half">').replace(/\u2775/g,'</span>').replace(/\u2768/g,'<span class="spotword">').replace(/\u2769/g,'</span>').replace(/\u276a/g,'<span class="mute-word">').replace(/\u276b/g,'</span>');
         return '<div class="beat"><div class="' + cls + '">' + html + '</div></div>';
       }
 
@@ -919,6 +991,13 @@
         start();
       }
     })();
+  </script>
+
+  <div id="atmos-glow"></div><div id="atmos-focus"></div><div id="atmos-cool"></div><div id="atmos-grain"></div>
+
+  <script>
+  /* Chunk 1 driver: read the progress bar (idx-agnostic, closure-safe) -> set mood. */
+  (function(){var moods=['open','open','tense','tense','open','closing','closing','dark','lift','warm','light','light','light'];var N=moods.length,prog=document.getElementById('progress'),b=document.body;function upd(){var pct=parseFloat((prog.style.width||'').replace('%',''))||0;var idx=Math.round(pct/100*N)-1;if(idx<0)idx=0;if(idx>N-1)idx=N-1;b.dataset.mood=moods[idx];}if(prog){new MutationObserver(upd).observe(prog,{attributes:true,attributeFilter:['style']});upd();}})();
   </script>
 </body>
 </html>
